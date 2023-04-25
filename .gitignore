@@ -1,0 +1,5 @@
+__pycache__/
+venv/
+gpt-comment-382218-c20de7caf068.json
+*.docx
+.env
