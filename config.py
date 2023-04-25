@@ -17,7 +17,7 @@ config = {
     "limit" : 1,
     "contractions_data_path": "data/contractions.json",
     "service_account_file" : "gpt-comment-382218-c20de7caf068.json",
-    "openai_api_key": "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",
+    "openai_api_key": "", # FILL THIS IN
 
 }
 
