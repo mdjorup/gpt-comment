@@ -1,3 +1,8 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 config = {
     "spreadsheet" : {
         "spreadsheet_id": "1q5GTuEa5saL2XOiKhvmNZx7tez-Tf0ZlPSElEQ-ngi4",
@@ -12,16 +17,24 @@ config = {
         "sps_start_indicator": "SPS:",
         "pse_start_indicator": "PSE:",
     },
+    "gpt_model_id": "gpt-3.5-turbo", # Do not change until you have access to GPT-4
     "folder_id": "1jeEq39T2Devm1nhZghmaCAbGumBjZgWS", # this is the folder where the generated documents will be stored
     "generated_document_name": "set1",
     "limit" : 1,
     "contractions_data_path": "data/contractions.json",
     "service_account_file" : "gpt-comment-382218-c20de7caf068.json",
-    "openai_api_key": "", # FILL THIS IN
+    "openai_api_key": os.environ.get("OPENAI_API_KEY"), # MUST SET THIS FIELD IN .env FILE
 
 }
 
 # pricing per 1000 tokens, in dollars
 pricing = {
-    "gpt-3.5-turbo": 0.002 # this is the only model used but more could be added
+    "gpt-3.5-turbo": {
+        "prompt_tokens": 0.002,
+        "completion_tokens": 0.002,    
+    },
+    "gpt-4": {
+        "prompt_tokens": 0.03,
+        "completion_tokens": 0.06,   
+    } 
 }

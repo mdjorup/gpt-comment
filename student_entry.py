@@ -75,12 +75,12 @@ class StudentEntry:
             for essay in self.sps_essays:
                 tg.create_task(essay.process(sps_essays_bar))
                 
-                time.sleep(5)
+                time.sleep(2)
             
-            pse_essays_bar =  tqdm(self.sps_essays, desc='PSE Essays')
+            pse_essays_bar =  tqdm(self.pse_essays, desc='PSE Essays')
             for essay in self.pse_essays:
                 tg.create_task(essay.process(pse_essays_bar))
-                time.sleep(5)
+                time.sleep(2)
         t1 = time.time() 
 
         ### PART 3: GENERATE REPORTS - create word doc, write entries
