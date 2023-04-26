@@ -1,6 +1,6 @@
+import time
+
 import aiohttp
-import openai
-import requests
 
 from config import config, pricing
 
@@ -22,7 +22,7 @@ class AIService:
     
     async def generate_chat_completion(self, system_message : str, 
                             prompt : str, 
-                            model : str = "gpt-3.5-turbo",
+                            model : str,
                             max_tokens : int = 256, 
                             temperature : float = 0.7) -> tuple[str, float]:
 
@@ -45,8 +45,10 @@ class AIService:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, json=data) as response:
-                if response.status != 200:
-                    raise Exception(f"OpenAI API returned status code {response.status}")
+                if response.status == 429:
+                    time.sleep(10)
+                    return await self.generate_chat_completion(system_message, prompt, model, max_tokens, temperature)
+                
                 response_data = await response.json()   
                       
         completion = response_data["choices"][0]["message"]["content"].strip() # type: ignore

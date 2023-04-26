@@ -12,6 +12,7 @@ config = {
         "sps_start_indicator": "SPS:",
         "pse_start_indicator": "PSE:",
     },
+    "gpt_model_id": "gpt-3.5-turbo", # Do not change until you have access to GPT-4
     "folder_id": "1jeEq39T2Devm1nhZghmaCAbGumBjZgWS", # this is the folder where the generated documents will be stored
     "generated_document_name": "set1",
     "limit" : 1,
@@ -23,5 +24,12 @@ config = {
 
 # pricing per 1000 tokens, in dollars
 pricing = {
-    "gpt-3.5-turbo": 0.002 # this is the only model used but more could be added
+    "gpt-3.5-turbo": {
+        "prompt_tokens": 0.002,
+        "completion_tokens": 0.002,    
+    },
+    "gpt-4": {
+        "prompt_tokens": 0.03,
+        "completion_tokens": 0.06,   
+    } 
 }

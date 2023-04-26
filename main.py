@@ -44,7 +44,7 @@ async def main():
         student_email = row[student_email_index]
 
         if row[complted_index] != "TRUE" and student_email != None:
-            gpa_str = row[reported_gpa_index]
+            gpa_str = str(row[reported_gpa_index])
             if gpa_str.isnumeric():
                 gpa = float(gpa_str)
             else:

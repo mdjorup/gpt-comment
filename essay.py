@@ -6,6 +6,8 @@ from config import config
 from services.ai_service import AIService
 from utils import longest_common_substring
 
+gpt_model : str = config["gpt_model_id"]
+
 
 class Essay(ABC):
 
@@ -109,7 +111,7 @@ class SPSEssay(Essay):
         system_message = f"You are an essay counselor helping a student write a better essay for their application to a selective technology high school. Respond with a short paragraph recommending improvements to the essay based on the following prompt:\n{self.prompt}"
         
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, max_tokens=256)
+        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=256)
 
         self.processing_costs += cost
         new_comment = Comment(completion, "General Comment:\n")
@@ -121,7 +123,7 @@ class SPSEssay(Essay):
         system_message = f'You are an essay counselor helping a student fix grammar errors for their application to a selective technology high school. Respond with a parseable list of at least {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"'
 
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=400)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
@@ -133,7 +135,7 @@ class SPSEssay(Essay):
         system_message = f'You are an essay counselor helping a student write a better essay for their application to a selective technology high school. Respond with a parseable list of at least {n_comments} comments recommending improvements to their essay, where each recommendation is attached to a concise quote from the text.\n\nExample:\n"Samantha was very angry" - Remember to show, do not tell\n\nThe prompt for the essay is:\n{self.prompt}'
 
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=400)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
@@ -166,7 +168,7 @@ class PSEEssay(Essay):
         system_message = f"You are a essay counselor helping me write a problem-solving essay for my application to a selective technology high school. The goal is to highlight my ability to explain my thought process through writing. Assume the reader has a strong math background. I will give you a prompt and an essay and you will respond with a short paragraph recommending improvements to the essay."
         oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=400)
         self.processing_costs += cost
         new_comment = Comment(completion, "General Comment:\n")
         self.general_comments.append(new_comment)
@@ -176,7 +178,7 @@ class PSEEssay(Essay):
         system_message = f'You are an essay counselor helping a student fix grammar errors for their application to a selective technology high school. Respond with a parseable list of at least {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"'
 
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=400)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
@@ -188,7 +190,7 @@ class PSEEssay(Essay):
 
         oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, max_tokens=600)
+        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=600)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
