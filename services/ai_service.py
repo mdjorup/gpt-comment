@@ -10,10 +10,12 @@ class AIService:
     def __init__(self):
         self.api_key = config["openai_api_key"]
 
-    def compute_cost(self, base_model, n_tokens):
+    def compute_cost(self, base_model, prompt_tokens, completion_tokens):
         
-        price_per_1k_tokens = pricing[base_model]
-        cost = price_per_1k_tokens * n_tokens / 1000
+        prompt_price_per_1k = pricing[base_model]["prompt_tokens"]
+        completion_price_per_1k = pricing[base_model]["completion_tokens"]
+
+        cost = (prompt_price_per_1k * prompt_tokens / 1000) + (completion_price_per_1k * completion_tokens / 1000)
         return cost
         
 
@@ -49,9 +51,12 @@ class AIService:
                       
         completion = response_data["choices"][0]["message"]["content"].strip() # type: ignore
 
-        n_tokens = response_data["usage"]["total_tokens"] # type: ignore
+        prompt_tokens = response_data["usage"]["prompt_tokens"] # type: ignore
+        completion_tokens = response_data["usage"]["completion_tokens"] # type: ignore
 
-        cost = self.compute_cost(model, n_tokens)
+
+
+        cost = self.compute_cost(model, prompt_tokens, completion_tokens)
 
         return completion, cost
         
