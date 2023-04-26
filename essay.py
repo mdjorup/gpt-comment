@@ -79,7 +79,8 @@ class Essay(ABC):
 
             
             new_run = paragraph.add_run(self.text[start:end])
-            new_run.add_comment(comment.comment, author="EduAvenues", initials="EA")
+            if comment.comment != "":
+                new_run.add_comment(comment.comment, author="EduAvenues", initials="EA")
 
             current_index = end
 
@@ -119,11 +120,12 @@ class SPSEssay(Essay):
 
     
     async def generate_grammar_comments(self):
-        n_errors = 8
-        system_message = f'You are an essay counselor helping a student fix grammar errors for their application to a selective technology high school. Respond with a parseable list of at least {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"'
+        n_errors = len(self.text) // 200
+
+        system_message = f'You are an essay counselor helping a student. Respond with a newline separated list of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=n_errors*80)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
@@ -131,11 +133,12 @@ class SPSEssay(Essay):
 
 
     async def generate_specific_comments(self):
-        n_comments = 5
-        system_message = f'You are an essay counselor helping a student write a better essay for their application to a selective technology high school. Respond with a parseable list of at least {n_comments} comments recommending improvements to their essay, where each recommendation is attached to a concise quote from the text.\n\nExample:\n"Samantha was very angry" - Remember to show, do not tell\n\nThe prompt for the essay is:\n{self.prompt}'
+        n_comments = len(self.text) // 250
+        system_message = f'You are an essay counselor helping a student write their application to TJ. Respond with a newline separated list of {n_comments} short suggestions directed at the student, where each suggestion is attached to a concise quote from the text.\n\nExample:\n"Samantha was very angry" - Remember to show, do not tell\n"I also play tennis" - Make sure to focus on relevant parts of your background and the prompt.'
 
+        oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=n_comments*80)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
@@ -165,7 +168,7 @@ class PSEEssay(Essay):
 
 
     async def generate_general_comment(self):
-        system_message = f"You are a essay counselor helping me write a problem-solving essay for my application to a selective technology high school. The goal is to highlight my ability to explain my thought process through writing. Assume the reader has a strong math background. I will give you a prompt and an essay and you will respond with a short paragraph recommending improvements to the essay."
+        system_message = f"You are a essay counselor helping a student apply to a selective technology high school called TJ. Assume the reader has a strong math background. The goal is to highlight the student's problem solving strategies through writing.\n\nRespond with a short paragraph recommending improvements to the essay based on the goal."
         oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=400)
@@ -174,23 +177,23 @@ class PSEEssay(Essay):
         self.general_comments.append(new_comment)
 
     async def generate_grammar_comments(self):
-        n_errors = 8
-        system_message = f'You are an essay counselor helping a student fix grammar errors for their application to a selective technology high school. Respond with a parseable list of at least {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"'
+        n_errors = len(self.text) // 200
+        system_message = f'You are an essay counselor helping a student. Respond with a newline separated list of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=400)
+        completion, cost = await oai.generate_chat_completion(system_message, self.text, gpt_model, max_tokens=n_errors*80)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
         self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
-        n_comments = 8
-        system_message = f'You are an essay counselor helping a student write a better essay for their application to a selective technology high school. Respond with a parseable list of at least {n_comments} comments recommending improvements to their essay, where each recommendation is attached to a concise quote from the text. Focus on logic errors, and opportunities for improvement.\n\nExample:\n"Samantha was very angry" - Remember to show, do not tell'
+        n_comments = len(self.text) // 250
+        system_message = f'You are a essay counselor helping a student apply to a selective technology high school called TJ. Assume the reader has a strong math background. Respond with a newline separated list of {n_comments} short suggestions directed at the student, where each suggestion is attached to a concise quote from the text. Focus on the problem-solving process.\n\nExample:\n"The answers previously stated are theoretical" - Make sure to include assumptions made in this experiment.\n"25% + 50% + 10% = 80%" - This calculation may be incorrect. Double check your math'
 
         oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=600)
+        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=n_comments*80)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")

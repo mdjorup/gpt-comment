@@ -1,3 +1,8 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 config = {
     "spreadsheet" : {
         "spreadsheet_id": "1q5GTuEa5saL2XOiKhvmNZx7tez-Tf0ZlPSElEQ-ngi4",
@@ -18,7 +23,7 @@ config = {
     "limit" : 1,
     "contractions_data_path": "data/contractions.json",
     "service_account_file" : "gpt-comment-382218-c20de7caf068.json",
-    "openai_api_key": "", # FILL THIS IN
+    "openai_api_key": os.environ.get("OPENAI_API_KEY"), # MUST SET THIS FIELD IN .env FILE
 
 }
 
