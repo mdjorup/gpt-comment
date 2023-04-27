@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 import pandas as pd
 from google.oauth2 import service_account
@@ -10,7 +10,7 @@ from config import config
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-GOOGLE_SA_KEY = os.environ.get("GOOGLE_SA_KEY")
+GOOGLE_SA_KEY = os.environ.get("GOOGLE_SA_KEY", "")
 
 creds = service_account.Credentials.from_service_account_info(json.loads(GOOGLE_SA_KEY), scopes=SCOPES)
 
