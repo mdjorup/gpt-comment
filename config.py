@@ -21,10 +21,7 @@ config = {
     "folder_id": "1jeEq39T2Devm1nhZghmaCAbGumBjZgWS", # this is the folder where the generated documents will be stored
     "generated_document_name": "set1",
     "limit" : 1,
-    "contractions_data_path": "data/contractions.json",
-    "service_account_file" : "gpt-comment-382218-c20de7caf068.json",
-    "openai_api_key": os.environ.get("OPENAI_API_KEY"), # MUST SET THIS FIELD IN .env FILE
-
+    "contractions_data_path": "data/contractions.json"
 }
 
 # pricing per 1000 tokens, in dollars

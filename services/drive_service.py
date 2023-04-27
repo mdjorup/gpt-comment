@@ -1,6 +1,7 @@
 import io
 import os
 import tempfile
+import json
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -9,9 +10,10 @@ from googleapiclient.http import MediaFileUpload
 from config import config
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
-SERVICE_ACCOUNT_FILE = config["service_account_file"]
 
-creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+GOOGLE_SA_KEY = os.environ.get("GOOGLE_SA_KEY")
+
+creds = service_account.Credentials.from_service_account_info(json.loads(GOOGLE_SA_KEY), scopes=SCOPES)
 
 class DriveService:
 

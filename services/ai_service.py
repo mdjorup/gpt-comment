@@ -1,4 +1,5 @@
 import time
+import os
 
 import aiohttp
 
@@ -8,7 +9,7 @@ from config import config, pricing
 class AIService:
 
     def __init__(self):
-        self.api_key = config["openai_api_key"]
+        self.api_key = os.environ.get("OPENAI_API_KEY")
 
     def compute_cost(self, base_model, prompt_tokens, completion_tokens):
         
