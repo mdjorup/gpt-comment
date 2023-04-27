@@ -1,4 +1,5 @@
 import asyncio
+import json
 from abc import ABC, abstractmethod
 
 from comments import Comment, QuotedComment
@@ -58,7 +59,22 @@ class Essay(ABC):
             self.quote_comments.append(new_comment)
 
     def generate_contraction_comments(self, path_to_contractions_data : str):
-        pass
+        with open(path_to_contractions_data, "r") as f:
+            contractions : dict = json.load(f)
+
+        for contraction, correction in contractions.items():
+            contr_str = " " + contraction + " "
+            correction_str = f"Replace {contraction} with {correction}"
+            
+            i = 0
+            while self.text.find(contr_str, i) != -1:
+                idx = self.text.find(contr_str, i)                
+                start_index = idx + 1
+                length = len(contr_str) - 2
+                new_comment = QuotedComment(correction_str, contraction, start_index, length)
+                self.quote_comments.append(new_comment)
+                i = idx + 1
+
 
     def add_to_doc(self, document):
 
@@ -148,6 +164,7 @@ class SPSEssay(Essay):
     async def process(self, progress_bar = None):
         self.remove_double_spaces()
         self.generate_contraction_comments(config["contractions_data_path"])
+        
 
         async with asyncio.TaskGroup() as tg:
             tg.create_task(self.generate_grammar_comments())
@@ -202,6 +219,7 @@ class PSEEssay(Essay):
 
     async def process(self, progress_bar=None):
         self.remove_double_spaces()
+        self.generate_contraction_comments(config["contractions_data_path"])
 
         async with asyncio.TaskGroup() as tg:
             tg.create_task(self.generate_general_comment())
