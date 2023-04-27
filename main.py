@@ -52,8 +52,9 @@ async def main():
             else:
                 gpa = 0.0
             entry = StudentEntry(dict(row), i, row[student_email_index], row[parent_email_index], gpa, row[middle_school_index])
-            student_entries.append(entry)
-            n += 1
+            if len(entry.sps_essays) != 0 or len(entry.pse_essays) != 0:  
+                student_entries.append(entry)
+                n += 1
         i += 1
     
     if n == 0:
