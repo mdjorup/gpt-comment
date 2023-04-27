@@ -1,5 +1,3 @@
-import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +17,7 @@ config = {
     },
     "gpt_model_id": "gpt-3.5-turbo", # Do not change until you have access to GPT-4
     "folder_id": "1jeEq39T2Devm1nhZghmaCAbGumBjZgWS", # this is the folder where the generated documents will be stored
-    "generated_document_name": "set1",
+    "generated_document_name": "Self-Paced Feedback Set #1",
     "limit" : 1,
     "contractions_data_path": "data/contractions.json"
 }

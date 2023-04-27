@@ -131,7 +131,10 @@ class StudentEntry:
             total_cost += essay.processing_costs
         
         for essay in self.pse_essays:
-            document.add_paragraph(f"Prompt {essay_count}: " + essay.prompt)
+            prompt_paragraph = document.add_paragraph()
+            prompt_run = prompt_paragraph.add_run(f"Prompt {essay_count}: " + essay.prompt)
+            prompt_run.font.bold = True
+            
             essay.add_to_doc(document)
             essay_count += 1
             total_cost += essay.processing_costs
