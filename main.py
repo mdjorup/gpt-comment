@@ -47,11 +47,7 @@ async def main():
 
         if row[complted_index] != "TRUE" and student_email != None:
             gpa_str = str(row[reported_gpa_index])
-            if gpa_str.isnumeric():
-                gpa = float(gpa_str)
-            else:
-                gpa = 0.0
-            entry = StudentEntry(dict(row), i, row[student_email_index], row[parent_email_index], gpa, row[middle_school_index])
+            entry = StudentEntry(dict(row), i, row[student_email_index], row[parent_email_index], gpa_str, row[middle_school_index])
             if len(entry.sps_essays) != 0 or len(entry.pse_essays) != 0:  
                 student_entries.append(entry)
                 n += 1
