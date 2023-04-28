@@ -70,10 +70,29 @@ class Essay(ABC):
             while self.text.find(contr_str, i) != -1:
                 idx = self.text.find(contr_str, i)                
                 start_index = idx + 1
-                length = len(contr_str) - 2
+                length = 1
                 new_comment = QuotedComment(correction_str, contraction, start_index, length)
                 self.quote_comments.append(new_comment)
                 i = idx + 1
+
+    
+    def generate_second_person_comments(self, path_to_second_person_data : str):
+        with open(path_to_second_person_data, "r") as f:
+            second_person : list = json.load(f)
+        
+        for word in second_person:
+            word_str = " " + word + " "
+            correction_str = "Avoid using second person"
+            
+            i = 0
+            while self.text.find(word_str, i) != -1:
+                idx = self.text.find(word_str, i)
+                start_index = idx + 1
+                length = 1
+                new_comment = QuotedComment(correction_str, word, start_index, length)
+                self.quote_comments.append(new_comment)
+                i = idx + 1
+        
 
 
     def add_to_doc(self, document):
@@ -164,6 +183,7 @@ class SPSEssay(Essay):
     async def process(self, progress_bar = None):
         self.remove_double_spaces()
         self.generate_contraction_comments(config["contractions_data_path"])
+        self.generate_second_person_comments(config["second_person_data_path"])
         
 
         async with asyncio.TaskGroup() as tg:
@@ -220,6 +240,7 @@ class PSEEssay(Essay):
     async def process(self, progress_bar=None):
         self.remove_double_spaces()
         self.generate_contraction_comments(config["contractions_data_path"])
+        self.generate_second_person_comments(config["second_person_data_path"])
 
         async with asyncio.TaskGroup() as tg:
             tg.create_task(self.generate_general_comment())

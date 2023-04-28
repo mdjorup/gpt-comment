@@ -19,7 +19,8 @@ config = {
     "folder_id": "1jeEq39T2Devm1nhZghmaCAbGumBjZgWS", # this is the folder where the generated documents will be stored
     "generated_document_name": "Self-Paced Feedback Set #1",
     "limit" : 1,
-    "contractions_data_path": "data/contractions.json"
+    "contractions_data_path": "data/contractions.json",
+    "second_person_data_path": "data/second_person.json"
 }
 
 # pricing per 1000 tokens, in dollars
