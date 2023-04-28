@@ -19,7 +19,7 @@ class StudentEntry:
                         row_index : int, 
                         student_email : str, 
                         parent_email : str,
-                        gpa : float,
+                        gpa : str,
                         middle_school : str):
         
         self.sps_essays : list[SPSEssay] = []
@@ -47,7 +47,7 @@ class StudentEntry:
         self.row_index = row_index 
         self.student_email = student_email
         self.parent_email = parent_email
-        self.gpa : float = gpa
+        self.gpa : str = gpa
         self.middle_school = middle_school
         
 
@@ -111,7 +111,7 @@ class StudentEntry:
 
         gpa_paragraph = document.add_paragraph()
         gpa_run = gpa_paragraph.add_run("GPA: ")
-        gpa_paragraph.add_run(str(round(self.gpa, 2)))
+        gpa_paragraph.add_run(self.gpa)
         gpa_run.font.bold = True
 
         date_paragraph = document.add_paragraph()
