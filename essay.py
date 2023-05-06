@@ -205,7 +205,7 @@ class PSEEssay(Essay):
 
 
     async def generate_general_comment(self):
-        system_message = f"You are a essay counselor helping a student apply to a selective technology high school called TJ. Assume the reader has a strong math background. The goal is to highlight the student's problem solving strategies through writing.\n\nRespond with a short paragraph recommending improvements to the essay based on the goal."
+        system_message = f"You are a essay counselor helping a student apply to a selective technology high school called TJ. Assume the reader has a strong math background. The goal is to demonstrate the student's problem solving strategies through writing.\n\nRespond with a short paragraph recommending improvements to the essay based on the goal."
         oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=400)
@@ -226,11 +226,11 @@ class PSEEssay(Essay):
 
     async def generate_specific_comments(self):
         n_comments = len(self.text) // 250
-        system_message = f'You are a essay counselor helping a student apply to a selective technology high school called TJ. Assume the reader has a strong math background. Respond with a newline separated list of {n_comments} short suggestions directed at the student, where each suggestion is attached to a concise quote from the text. Focus on the problem-solving process.\n\nExample:\n"The answers previously stated are theoretical" - Make sure to include assumptions made in this experiment.\n"25% + 50% + 10% = 80%" - This calculation may be incorrect. Double check your math'
+        system_message = f'Do not focus on the correctness of the math or logic. Instead, concentrate on suggestions for improving the organization, flow, and clarity of my explanation. Respond with a newline separated list of 5 short suggestions directed at the student, where each suggestion is attached to a concise quote from the essay.\n\nExample:\n"The answers previously stated are theoretical" - Make sure to include assumptions made in this experiment.\n"25% + 50% + 10% = 80%" - How did you get these numbers?'
 
         oai_prompt = f'Prompt:\n{self.prompt}\n\nEssay:\n{self.text}'
         oai = AIService()
-        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=n_comments*80)
+        completion, cost = await oai.generate_chat_completion(system_message, oai_prompt, gpt_model, max_tokens=n_comments*80, temperature=0.5)
 
         self.processing_costs += cost
         unparsed_comments = completion.split("\n")
