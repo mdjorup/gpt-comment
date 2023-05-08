@@ -1,9 +1,5 @@
-
-
-
 class Comment:
-    
-    def __init__(self, comment: str, prefix : str = ""):
+    def __init__(self, comment: str, prefix: str = ""):
         self.comment = comment.strip()
         self.prefix = prefix
 
@@ -12,14 +8,12 @@ class Comment:
             return f"{self.prefix}{self.comment}"
         else:
             return self.comment
-        
+
     def class_repr(self):
-        return f"Comment(comment={self.comment}, prefix={self.prefix})"  
-    
+        return f"Comment(comment={self.comment}, prefix={self.prefix})"
 
 
 class QuotedComment(Comment):
-    
     def __init__(self, comment, quote, start_index, length):
         super().__init__(comment)
         self.quote = quote
@@ -27,8 +21,7 @@ class QuotedComment(Comment):
         self.length = length
 
     def __str__(self):
-        return f'"{self.quote}" - {self.comment}'   
+        return f'"{self.quote}" - {self.comment}'
 
     def class_repr(self):
-        return f"QuotedComment(comment={self.comment}, quote={self.quote}, start_index={self.start_index}, length={self.length})"  
-    
+        return f"QuotedComment(comment={self.comment}, quote={self.quote}, start_index={self.start_index}, length={self.length})"

@@ -14,16 +14,17 @@ from utils import float_to_dollar
 
 
 class StudentEntry:
-    
-    def __init__(self,  essays : dict, 
-                        row_index : int, 
-                        student_email : str, 
-                        parent_email : str,
-                        gpa : str,
-                        middle_school : str):
-        
-        self.sps_essays : list[SPSEssay] = []
-        self.pse_essays : list[PSEEssay] = []
+    def __init__(
+        self,
+        essays: dict,
+        row_index: int,
+        student_email: str,
+        parent_email: str,
+        gpa: str,
+        middle_school: str,
+    ):
+        self.sps_essays: list[SPSEssay] = []
+        self.pse_essays: list[PSEEssay] = []
 
         for key, value in essays.items():
             if value.strip() == "":
@@ -42,46 +43,39 @@ class StudentEntry:
             else:
                 continue
 
-
-
-        self.row_index = row_index 
+        self.row_index = row_index
         self.student_email = student_email
         self.parent_email = parent_email
-        self.gpa : str = gpa
+        self.gpa: str = gpa
         self.middle_school = middle_school
-        
-
 
     def __str__(self):
         return f"StudentEntry(row_index={self.row_index}, student_email={self.student_email}, n_sps_essays={len(self.sps_essays)}, n_pse_essays={len(self.pse_essays)})"
 
-
-    def update_completed(self, document_link : str):
+    def update_completed(self, document_link: str):
         ss = SheetsService()
         completed_column = config["spreadsheet"]["completed_column"]
         document_link_column = config["spreadsheet"]["document_link_column"]
         ss.update_cell(self.row_index, completed_column, True)
         ss.update_cell(self.row_index, document_link_column, document_link)
 
-
-    
     async def process(self):
         print("Processing Submission for " + self.student_email)
 
         ### PART 2: PROCESS STUDENT ENTRIES - everything to do with analyzing the essays
         t0 = time.time()
         async with asyncio.TaskGroup() as tg:
-            sps_essays_bar = tqdm(self.sps_essays, desc='SPS Essays')
+            sps_essays_bar = tqdm(self.sps_essays, desc="SPS Essays")
             for essay in self.sps_essays:
                 tg.create_task(essay.process(sps_essays_bar))
-                
+
                 time.sleep(2)
-            
-            pse_essays_bar =  tqdm(self.pse_essays, desc='PSE Essays')
+
+            pse_essays_bar = tqdm(self.pse_essays, desc="PSE Essays")
             for essay in self.pse_essays:
                 tg.create_task(essay.process(pse_essays_bar))
                 time.sleep(2)
-        t1 = time.time() 
+        t1 = time.time()
 
         ### PART 3: GENERATE REPORTS - create word doc, write entries
 
@@ -92,8 +86,8 @@ class StudentEntry:
         title_run.font.color.rgb = RGBColor.from_string("018AFD")
         title_run.font.size = Pt(16)
         title_run.font.bold = True
-        title.alignment = 1 # centers the title
-        
+        title.alignment = 1  # centers the title
+
         se_paragraph = document.add_paragraph()
         se_run = se_paragraph.add_run("Student Email: ")
         se_paragraph.add_run(self.student_email)
@@ -123,45 +117,49 @@ class StudentEntry:
 
         for essay in self.sps_essays:
             prompt_paragraph = document.add_paragraph()
-            prompt_run = prompt_paragraph.add_run(f"Prompt {essay_count}: " + essay.prompt)
+            prompt_run = prompt_paragraph.add_run(
+                f"Prompt {essay_count}: " + essay.prompt
+            )
             prompt_run.font.bold = True
 
             essay.add_to_doc(document)
             essay_count += 1
             total_cost += essay.processing_costs
-        
+
         for essay in self.pse_essays:
             prompt_paragraph = document.add_paragraph()
-            prompt_run = prompt_paragraph.add_run(f"Prompt {essay_count}: " + essay.prompt)
+            prompt_run = prompt_paragraph.add_run(
+                f"Prompt {essay_count}: " + essay.prompt
+            )
             prompt_run.font.bold = True
-            
+
             essay.add_to_doc(document)
             essay_count += 1
             total_cost += essay.processing_costs
-
 
         print("Submission Processing Cost: ", float_to_dollar(total_cost))
         print("Time taken: ", t1 - t0, "seconds")
         print("\n")
 
-        document_name = config["generated_document_name"] + "-" + self.student_email + ".docx"
+        document_name = (
+            config["generated_document_name"] + "-" + self.student_email + ".docx"
+        )
 
         footer = document.sections[0].footer
 
         paragraph = footer.paragraphs[0]
 
-        left_part = paragraph.add_run('© EduAvenues LLC\t\t')
+        left_part = paragraph.add_run("© EduAvenues LLC\t\t")
         left_part.font.color.rgb = RGBColor.from_string("018AFD")
 
         # Set the right side of the footer
-        right_part = paragraph.add_run('EduAvenues')
+        right_part = paragraph.add_run("EduAvenues")
         right_part.font.color.rgb = RGBColor.from_string("018AFD")
         right_part.font.name = "Avenir"
         right_part.font.size = Pt(14)
 
         # This code saves the word document locally
-        #document.save(document_name)
-
+        # document.save(document_name)
 
         ### PART 4: UPDATE SHEET & UPLOAD
 
@@ -172,8 +170,3 @@ class StudentEntry:
         self.update_completed(link)
 
         return total_cost
-        
-        
-
-        
-        

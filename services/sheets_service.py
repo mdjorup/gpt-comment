@@ -8,43 +8,48 @@ from googleapiclient.errors import HttpError
 
 from config import config
 
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 GOOGLE_SA_KEY = os.environ.get("GOOGLE_SA_KEY", "")
 
-creds = service_account.Credentials.from_service_account_info(json.loads(GOOGLE_SA_KEY), scopes=SCOPES)
+creds = service_account.Credentials.from_service_account_info(
+    json.loads(GOOGLE_SA_KEY), scopes=SCOPES
+)
 
 
 class SheetsService:
     def __init__(self):
         self.spreadsheet_id = config["spreadsheet"]["spreadsheet_id"]
         self.sheet_name = config["spreadsheet"]["sheet_name"]
-        self.service = build('sheets', 'v4', credentials=creds)
+        self.service = build("sheets", "v4", credentials=creds)
 
     def get_rows(self):
-        result = self.service.spreadsheets().values().get(spreadsheetId=self.spreadsheet_id, range=f"{self.sheet_name}!A1:Z").execute()
-        data = result.get('values', [])
+        result = (
+            self.service.spreadsheets()
+            .values()
+            .get(spreadsheetId=self.spreadsheet_id, range=f"{self.sheet_name}!A1:Z")
+            .execute()
+        )
+        data = result.get("values", [])
         columns = data[0]
         raw_rows = data[1:]
         rows = []
         for row in raw_rows:
-            new_row = row[:len(columns)]
+            new_row = row[: len(columns)]
             if len(new_row) < len(columns):
                 new_row += [""] * (len(columns) - len(new_row))
             rows.append(new_row)
         df = pd.DataFrame(rows, columns=columns)
 
         return df
-        
-    
-    def update_cell(self, row : int, column : str, value):
+
+    def update_cell(self, row: int, column: str, value):
         write_range = f"{self.sheet_name}!{column}{row}"
-        body = {'values': [[value]]}
+        body = {"values": [[value]]}
 
         self.service.spreadsheets().values().update(
-            spreadsheetId=self.spreadsheet_id, range=write_range,
-            valueInputOption="RAW", body=body).execute()
-    
-
-    
-    
+            spreadsheetId=self.spreadsheet_id,
+            range=write_range,
+            valueInputOption="RAW",
+            body=body,
+        ).execute()
