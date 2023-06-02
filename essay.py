@@ -58,6 +58,20 @@ class Essay(ABC):
             new_comment = QuotedComment(suggestion, lcs, start_index, length)
             self.quote_comments.append(new_comment)
 
+    def add_json_comments(self, comment_json_str: str):
+        # this is for when the comments are in json form
+        comment_json : dict = json.loads(comment_json_str)
+        for quote, suggestion in comment_json.items():
+            lcs = longest_common_substring(quote, self.text).strip()
+            if lcs == "":
+                continue
+            start_index = self.text.find(lcs)
+            length = len(lcs)
+            new_comment = QuotedComment(suggestion, quote, start_index, length)
+            self.quote_comments.append(new_comment)
+
+            
+
     def generate_contraction_comments(self, path_to_contractions_data: str):
         with open(path_to_contractions_data, "r") as f:
             contractions: dict = json.load(f)
