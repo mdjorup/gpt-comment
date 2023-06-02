@@ -15,6 +15,8 @@ config = {
         "sps_start_indicator": "SPS:",
         "pse_start_indicator": "PSE:",
     },
+    "grammar_comment_frequency": 10, # value is comments per 500 characters of essay
+    "idea_comment_frequency": 15, # value is comments per 500 characters of essay
     "gpt_model_id": "gpt-3.5-turbo",  # Do not change until you have access to GPT-4
     "folder_id": "1jeEq39T2Devm1nhZghmaCAbGumBjZgWS",  # this is the folder where the generated documents will be stored
     "generated_document_name": "Self-Paced Feedback Set #1",

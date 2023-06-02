@@ -8,7 +8,8 @@ from services.ai_service import AIService
 from utils import longest_common_substring
 
 gpt_model: str = config["gpt_model_id"]
-
+grammar_comment_freq: float = config["grammar_comment_frequency"]
+idea_comment_freq: float = config["idea_comment_frequency"]
 
 class Essay(ABC):
     def __init__(self, prompt: str, text: str):
@@ -60,6 +61,7 @@ class Essay(ABC):
 
     def add_json_comments(self, comment_json_str: str):
         # this is for when the comments are in json form
+        comment_json_str = comment_json_str.strip()
         comment_json : dict = json.loads(comment_json_str)
         for quote, suggestion in comment_json.items():
             lcs = longest_common_substring(quote, self.text).strip()
@@ -162,9 +164,9 @@ class SPSEssay(Essay):
         self.general_comments.append(new_comment)
 
     async def generate_grammar_comments(self):
-        n_errors = len(self.text) // 200
+        n_errors = (len(self.text) * grammar_comment_freq) // 500
 
-        system_message = f'You are an essay counselor helping a student. Respond with a newline separated list of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
+        system_message = f'You are an essay counselor helping a student and you only speak grammar JSON. Respond with a JSON object of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each key is a quick quote of the grammar mistake and your suggestion to fix the grammar mistake is the value.\n\nExample:\n\u007B"she is a engineer": "incorrect use of \'a\'"\u007D'
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
@@ -172,12 +174,11 @@ class SPSEssay(Essay):
         )
 
         self.processing_costs += cost
-        unparsed_comments = completion.split("\n")
-        self.add_unparsed_comments(unparsed_comments)
+        self.add_json_comments(completion)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 250
-        system_message = f'You are an essay counselor helping a student write their application to TJ. Respond with a newline separated list of {n_comments} short suggestions directed at the student, where each suggestion is attached to a concise quote from the text.\n\nExample:\n"Samantha was very angry" - Remember to show, do not tell\n"I also play tennis" - Make sure to focus on relevant parts of your background and the prompt.'
+        n_comments = (len(self.text) * idea_comment_freq) // 500
+        system_message = f'You are an essay counselor helping a student and you only speak JSON. Respond with a JSON object of {n_comments} suggestions. Each key of the JSON is a quick quote from the text and the values are your suggestions.\n\nExample:\n\u007B"I told my parents and they were mad": "It is always better to show instead of tell. Consider expanding more on how conversation felt?"\u007D'
 
         oai_prompt = f"Prompt:\n{self.prompt}\n\nEssay:\n{self.text}"
         oai = AIService()
@@ -186,8 +187,7 @@ class SPSEssay(Essay):
         )
 
         self.processing_costs += cost
-        unparsed_comments = completion.split("\n")
-        self.add_unparsed_comments(unparsed_comments)
+        self.add_json_comments(completion)
 
     async def process(self, progress_bar=None):
         self.remove_double_spaces()
@@ -220,8 +220,8 @@ class PSEEssay(Essay):
         self.general_comments.append(new_comment)
 
     async def generate_grammar_comments(self):
-        n_errors = len(self.text) // 200
-        system_message = f'You are an essay counselor helping a student. Respond with a newline separated list of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
+        n_errors = (len(self.text) * grammar_comment_freq) // 500
+        system_message = f'You are an essay counselor helping a student and you only speak grammar JSON. Respond with a JSON object of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each key is a quick quote of the grammar mistake and your suggestion to fix the grammar mistake is the value. Do not focus on teh correctness of the math or logic. \n\nExample:\n\u007B"she is a engineer": "incorrect use of \'a\'"\u007D'
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
@@ -229,13 +229,11 @@ class PSEEssay(Essay):
         )
 
         self.processing_costs += cost
-        unparsed_comments = completion.split("\n")
-        self.add_unparsed_comments(unparsed_comments)
+        self.add_json_comments(completion)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 250
-        system_message = f'Do not focus on the correctness of the math or logic. Instead, concentrate on suggestions for improving the organization, flow, and clarity of my explanation. Respond with a newline separated list of 5 short suggestions directed at the student, where each suggestion is attached to a concise quote from the essay.\n\nExample:\n"The answers previously stated are theoretical" - Make sure to include assumptions made in this experiment.\n"25% + 50% + 10% = 80%" - How did you get these numbers?'
-
+        n_comments = (len(self.text) * idea_comment_freq) // 500
+        system_message = f'You are an essay counselor helping a student and you only speak grammar JSON. Respond with a JSON object of {n_comments} suggestions. Each key of the JSON is a quick quote from the text and the values are your suggestions. Do not focus on the correctness of the math or logic. Instead, concentrate on suggestions for improving the organization, flow, and clarity of the explanation.\n\nExample:\n\u007B"I put these numbers into my calculator": "It is always better to show your process. Consider expanding on how you performed the calculations?"\u007D'
         oai_prompt = f"Prompt:\n{self.prompt}\n\nEssay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
@@ -247,8 +245,7 @@ class PSEEssay(Essay):
         )
 
         self.processing_costs += cost
-        unparsed_comments = completion.split("\n")
-        self.add_unparsed_comments(unparsed_comments)
+        self.add_json_comments(completion)
 
     async def process(self, progress_bar=None):
         self.remove_double_spaces()
