@@ -219,9 +219,9 @@ class PSEEssay(Essay):
         self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 250
+        n_comments = len(self.text) // 180
 
-        system_message = f'As an essay counselor, your role is to aid a student in effectively conveying their problem-solving abilities within an essay. Your focus should not be on the accuracy of the mathematical or logical content. Instead, your suggestions should aim to enhance the structure, flow, and clarity of the student\'s explanations.\nGenerate a list of {n_comments} concise suggestions for improving the student\'s essay. Each recommendation should be directly linked to a brief quote from the essay text. Arrange these as separate lines in your response.\n\nFor example:\n"The answers previously stated are theoretical" - Ensure you clearly state any assumptions made in this experiment.\n"25% + 50% + 10% = 80%" - Clarify how you arrived at these percentages.'
+        system_message = f'As an essay counselor, your task is to assist a student in articulating their problem-solving process within a written essay. We\'re not focusing on the mathematical accuracy but instead the clarity and flow of the explanation, and the organization of the essay. You should provide recommendations for improving these aspects, without considering the correctness of mathematical logic.\nRespond with a newline-separated list of 5 distinct suggestions for the student, each tied to a specific quote from the text. Your suggestions should aim to enhance the coherence, organization, and clarity of the student\'s explanation\n\nFor example:\n"First, I calculated the sum" - Add more context. What exactly are you summing here and why is it important?\n"This result is impossible" - Suggest: Instead of stating it\'s impossible, explain why it contradicts known principles or assumptions.'
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nStudent's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
@@ -243,7 +243,7 @@ class PSEEssay(Essay):
 
         async with asyncio.TaskGroup() as tg:
             tg.create_task(self.generate_general_comment())
-            tg.create_task(self.generate_grammar_comments())
+            # tg.create_task(self.generate_grammar_comments()) # not sure if we want these. Going to leave them out.
             tg.create_task(self.generate_specific_comments())
 
         if progress_bar:
