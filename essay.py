@@ -136,11 +136,11 @@ class SPSEssay(Essay):
         self.essay_type = config["spreadsheet"]["sps_start_indicator"]
 
     async def generate_general_comment(self):
-        system_message = f"You are an essay counselor helping a student write a better essay for their application to a selective technology high school. Respond with a short paragraph recommending improvements to the essay based on the following prompt:\n{self.prompt}"
+        system_message = f"As a guidance counselor assisting a student with their application essay for a prestigious tech-focused high school, your task is to provide constructive feedback for improvement. Consider the essay question, {self.prompt}, as the foundation for your feedback, ensuring that the recommendations align with the initial prompt. Respond with a compact, yet comprehensive paragraph containing your suggested enhancements."
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, self.text, gpt_model, max_tokens=256
+            system_message, self.text, "gpt-3.5-turbo", max_tokens=256
         )
 
         self.processing_costs += cost
@@ -150,11 +150,11 @@ class SPSEssay(Essay):
     async def generate_grammar_comments(self):
         n_errors = len(self.text) // 200
 
-        system_message = f'You are an essay counselor helping a student. Respond with a newline separated list of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
+        system_message = f'As an essay guidance counselor, your task is to help a student by identifying grammar mistakes in their writing. Your response should be formatted as a list with each line containing a specific error along with a brief excerpt from the student\'s essay that includes that error. Also provide a succinct suggestion for correcting the mistake.\n\nFor example:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, self.text, gpt_model, max_tokens=n_errors * 80
+            system_message, self.text, "gpt-3.5-turbo", max_tokens=n_errors * 80
         )
 
         self.processing_costs += cost
@@ -163,12 +163,12 @@ class SPSEssay(Essay):
 
     async def generate_specific_comments(self):
         n_comments = len(self.text) // 250
-        system_message = f'You are an essay counselor helping a student write their application to TJ. Respond with a newline separated list of {n_comments} short suggestions directed at the student, where each suggestion is attached to a concise quote from the text.\n\nExample:\n"Samantha was very angry" - Remember to show, do not tell\n"I also play tennis" - Make sure to focus on relevant parts of your background and the prompt.'
 
-        oai_prompt = f"Prompt:\n{self.prompt}\n\nEssay:\n{self.text}"
+        system_message = f'You\'re an essay guidance counselor assisting a student with their TJ application essay. Your key responsibility is to offer constructive suggestions aimed at refining the content and ideas of the essay. Based on the student\'s essay, generate {n_comments} insightful suggestions, each connected to a specific quote from the text. Format your advice as a list, where each entry begins with a brief quote from the essay, followed by your suggestion for improvement.\nRemember, your goal is to help shape the student\'s thoughts and arguments, enhancing the overall quality of the essay.\n\n"Samantha was very angry" - Try to \'show\' the emotions instead of just \'telling\'. This will make your narrative more engaging.\n"I also play tennis" - Keep your information relevant. Discuss aspects of your background that align with the theme of the essay prompt.'
+        oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, oai_prompt, gpt_model, max_tokens=n_comments * 80
+            system_message, oai_prompt, "gpt-4", max_tokens=n_comments * 80
         )
 
         self.processing_costs += cost
@@ -195,11 +195,11 @@ class PSEEssay(Essay):
         self.essay_type = config["spreadsheet"]["pse_start_indicator"]
 
     async def generate_general_comment(self):
-        system_message = f"You are a essay counselor helping a student apply to a selective technology high school called TJ. Assume the reader has a strong math background. The goal is to demonstrate the student's problem solving strategies through writing.\n\nRespond with a short paragraph recommending improvements to the essay based on the goal."
-        oai_prompt = f"Prompt:\n{self.prompt}\n\nEssay:\n{self.text}"
+        system_message = f"You're an essay counselor helping a student craft their application essay for TJ, a highly selective technology high school. Assume that your reader possesses a strong mathematical background. The core objective of the essay is to exhibit the student's problem-solving strategies in written form.\nBased on the essay provided, offer your feedback in a succinct paragraph. Your recommendations should aim at enhancing the clarity, specificity, and effectiveness of how the student communicates their problem-solving strategies within the context of the essay."
+        oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, oai_prompt, gpt_model, max_tokens=400
+            system_message, oai_prompt, "gpt-3.5-turbo", max_tokens=400
         )
         self.processing_costs += cost
         new_comment = Comment(completion, "General Comment:\n")
@@ -207,11 +207,11 @@ class PSEEssay(Essay):
 
     async def generate_grammar_comments(self):
         n_errors = len(self.text) // 200
-        system_message = f'You are an essay counselor helping a student. Respond with a newline separated list of {n_errors} grammar errors and a short suggestion directed at the student to fix the error, where each error is attached to a concise quote from the text.\n\nExample:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
+        system_message = f'As an essay guidance counselor, your task is to help a student by identifying grammar mistakes in their writing. Your response should be formatted as a list with each line containing a specific error along with a brief excerpt from the student\'s essay that includes that error. Also provide a succinct suggestion for correcting the mistake.\n\nFor example:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, self.text, gpt_model, max_tokens=n_errors * 80
+            system_message, self.text, "gpt-3.5-turbo", max_tokens=n_errors * 80
         )
 
         self.processing_costs += cost
@@ -219,15 +219,15 @@ class PSEEssay(Essay):
         self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 250
-        system_message = f'Do not focus on the correctness of the math or logic. Instead, concentrate on suggestions for improving the organization, flow, and clarity of my explanation. Respond with a newline separated list of 5 short suggestions directed at the student, where each suggestion is attached to a concise quote from the essay.\n\nExample:\n"The answers previously stated are theoretical" - Make sure to include assumptions made in this experiment.\n"25% + 50% + 10% = 80%" - How did you get these numbers?'
+        n_comments = len(self.text) // 180
 
-        oai_prompt = f"Prompt:\n{self.prompt}\n\nEssay:\n{self.text}"
+        system_message = f'As an essay counselor, your task is to assist a student in articulating their problem-solving process within a written essay. We\'re not focusing on the mathematical accuracy but instead the clarity and flow of the explanation, and the organization of the essay. You should provide recommendations for improving these aspects, without considering the correctness of mathematical logic.\nRespond with a newline-separated list of 5 distinct suggestions for the student, each tied to a specific quote from the text. Your suggestions should aim to enhance the coherence, organization, and clarity of the student\'s explanation\n\nFor example:\n"First, I calculated the sum" - Add more context. What exactly are you summing here and why is it important?\n"This result is impossible" - Suggest: Instead of stating it\'s impossible, explain why it contradicts known principles or assumptions.'
+        oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nStudent's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
             system_message,
             oai_prompt,
-            gpt_model,
+            "gpt-4",
             max_tokens=n_comments * 80,
             temperature=0.5,
         )
@@ -243,7 +243,7 @@ class PSEEssay(Essay):
 
         async with asyncio.TaskGroup() as tg:
             tg.create_task(self.generate_general_comment())
-            tg.create_task(self.generate_grammar_comments())
+            # tg.create_task(self.generate_grammar_comments()) # not sure if we want these. Going to leave them out.
             tg.create_task(self.generate_specific_comments())
 
         if progress_bar:
