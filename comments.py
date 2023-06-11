@@ -8,6 +8,12 @@ class Comment:
             return f"{self.prefix}{self.comment}"
         else:
             return self.comment
+        
+    def to_dict(self) -> dict:
+        return {
+            "comment_type": "general",
+            "comment": self.comment,
+        }
 
     def class_repr(self):
         return f"Comment(comment={self.comment}, prefix={self.prefix})"
@@ -22,6 +28,13 @@ class QuotedComment(Comment):
 
     def __str__(self):
         return f'"{self.quote}" - {self.comment}'
+    
+    def to_dict(self) -> dict:
+        return {
+            "comment_type": "quoted",
+            "quote": self.quote,
+            "comment": self.comment,
+        }
 
     def class_repr(self):
         return f"QuotedComment(comment={self.comment}, quote={self.quote}, start_index={self.start_index}, length={self.length})"

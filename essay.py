@@ -1,10 +1,14 @@
 import asyncio
 import json
 from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import List
+from uuid import uuid4
 
 from comments import Comment, QuotedComment
 from config import config
 from services.ai_service import AIService
+from services.firestore_service import FirestoreService
 from utils import longest_common_substring
 
 gpt_model: str = config["gpt_model_id"]
@@ -125,6 +129,43 @@ class Essay(ABC):
 
         document.add_page_break()
 
+    def upload_result_to_firestore(self):
+        instructions = []
+
+        essay_id = str(uuid4())
+
+        instructions.append(
+            {
+                "path": ["essays", essay_id],
+                "data": self.to_dict(),
+            }
+        )
+
+        for comment in self.general_comments:
+            comment_id = str(uuid4())
+            instructions.append(
+                {
+                    "path": ["essays", essay_id, "general_comments", comment_id],
+                    "data": comment.to_dict(),
+                }
+            )
+
+        for comment in self.quote_comments:
+            comment_id = str(uuid4())
+            instructions.append(
+                {
+                    "path": ["essays", essay_id, "quoted_comments", comment_id],
+                    "data": comment.to_dict(),
+                }
+            )
+
+        fs = FirestoreService()
+        fs.batch_write(instructions)
+
+    @abstractmethod
+    def to_dict(self):
+        pass
+
     @abstractmethod
     async def process(self):
         pass
@@ -164,7 +205,7 @@ class SPSEssay(Essay):
     async def generate_specific_comments(self):
         n_comments = len(self.text) // 250
 
-        system_message = f'You\'re an essay guidance counselor assisting a student with their TJ application essay. Your key responsibility is to offer constructive suggestions aimed at refining the content and ideas of the essay. Based on the student\'s essay, generate {n_comments} insightful suggestions, each connected to a specific quote from the text. Format your advice as a list, where each entry begins with a brief quote from the essay, followed by your suggestion for improvement.\nRemember, your goal is to help shape the student\'s thoughts and arguments, enhancing the overall quality of the essay.\n\n"Samantha was very angry" - Try to \'show\' the emotions instead of just \'telling\'. This will make your narrative more engaging.\n"I also play tennis" - Keep your information relevant. Discuss aspects of your background that align with the theme of the essay prompt.'
+        system_message = f"You're an essay guidance counselor assisting a student with their TJ application essay. Your key responsibility is to offer constructive suggestions aimed at refining the content and ideas of the essay. Based on the student's essay, generate {n_comments} insightful suggestions, each connected to a specific quote from the text. Format your advice as a list, where each entry begins with a brief quote from the essay, followed by your suggestion for improvement.\nRemember, your goal is to help shape the student's thoughts and arguments, enhancing the overall quality of the essay.\n\n\"Samantha was very angry\" - Try to 'show' the emotions instead of just 'telling'. This will make your narrative more engaging.\n\"I also play tennis\" - Keep your information relevant. Discuss aspects of your background that align with the theme of the essay prompt."
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
@@ -175,6 +216,15 @@ class SPSEssay(Essay):
         unparsed_comments = completion.split("\n")
         self.add_unparsed_comments(unparsed_comments)
 
+    def to_dict(self) -> dict:
+        return {
+            "upload_time": datetime.now(),
+            "essay_prompt": self.prompt,
+            "essay_text": self.text,
+            "type": self.essay_type,
+            "processing_costs": self.processing_costs,
+        }
+
     async def process(self, progress_bar=None):
         self.remove_double_spaces()
         self.generate_contraction_comments(config["contractions_data_path"])
@@ -184,6 +234,11 @@ class SPSEssay(Essay):
             tg.create_task(self.generate_grammar_comments())
             tg.create_task(self.generate_specific_comments())
             tg.create_task(self.generate_general_comment())
+
+        try:
+            self.upload_result_to_firestore()
+        except:
+            print("Warning: Failed to upload to Firestore.")
 
         if progress_bar:
             progress_bar.update(1)
@@ -236,6 +291,15 @@ class PSEEssay(Essay):
         unparsed_comments = completion.split("\n")
         self.add_unparsed_comments(unparsed_comments)
 
+    def to_dict(self) -> dict:
+        return {
+            "upload_time": datetime.now(),
+            "essay_prompt": self.prompt,
+            "essay_text": self.text,
+            "type": self.essay_type,
+            "processing_costs": self.processing_costs,
+        }
+
     async def process(self, progress_bar=None):
         self.remove_double_spaces()
         self.generate_contraction_comments(config["contractions_data_path"])
@@ -245,6 +309,11 @@ class PSEEssay(Essay):
             tg.create_task(self.generate_general_comment())
             # tg.create_task(self.generate_grammar_comments()) # not sure if we want these. Going to leave them out.
             tg.create_task(self.generate_specific_comments())
+
+        try:
+            self.upload_result_to_firestore()
+        except:
+            print("Warning: Failed to upload to Firestore.")
 
         if progress_bar:
             progress_bar.update(1)
