@@ -189,7 +189,7 @@ class SPSEssay(Essay):
         self.general_comments.append(new_comment)
 
     async def generate_grammar_comments(self):
-        n_errors = len(self.text) // 200
+        n_errors = len(self.text) // 225
 
         system_message = f'As an essay guidance counselor, your task is to help a student by identifying grammar mistakes in their writing. Your response should be formatted as a list with each line containing a specific error along with a brief excerpt from the student\'s essay that includes that error. Also provide a succinct suggestion for correcting the mistake.\n\nFor example:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
@@ -203,7 +203,7 @@ class SPSEssay(Essay):
         self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 250
+        n_comments = len(self.text) // 225
 
         system_message = f"You're an essay guidance counselor assisting a student with their TJ application essay. Your key responsibility is to offer constructive suggestions aimed at refining the content and ideas of the essay. Based on the student's essay, generate {n_comments} insightful suggestions, each connected to a specific quote from the text. Format your advice as a list, where each entry begins with a brief quote from the essay, followed by your suggestion for improvement.\nRemember, your goal is to help shape the student's thoughts and arguments, enhancing the overall quality of the essay.\n\n\"Samantha was very angry\" - Try to 'show' the emotions instead of just 'telling'. This will make your narrative more engaging.\n\"I also play tennis\" - Keep your information relevant. Discuss aspects of your background that align with the theme of the essay prompt."
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
@@ -274,7 +274,7 @@ class PSEEssay(Essay):
         self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 180
+        n_comments = len(self.text) // 175
 
         system_message = f'As an essay counselor, your task is to assist a student in articulating their problem-solving process within a written essay. We\'re not focusing on the mathematical accuracy but instead the clarity and flow of the explanation, and the organization of the essay. You should provide recommendations for improving these aspects, without considering the correctness of mathematical logic.\nRespond with a newline-separated list of 5 distinct suggestions for the student, each tied to a specific quote from the text. Your suggestions should aim to enhance the coherence, organization, and clarity of the student\'s explanation\n\nFor example:\n"First, I calculated the sum" - Add more context. What exactly are you summing here and why is it important?\n"This result is impossible" - Suggest: Instead of stating it\'s impossible, explain why it contradicts known principles or assumptions.'
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nStudent's Essay:\n{self.text}"
