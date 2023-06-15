@@ -25,7 +25,7 @@ config = {
 # pricing per 1000 tokens, in dollars
 pricing = {
     "gpt-3.5-turbo": {
-        "prompt_tokens": 0.002,
+        "prompt_tokens": 0.0015,
         "completion_tokens": 0.002,
     },
     "gpt-4": {

@@ -181,7 +181,7 @@ class SPSEssay(Essay):
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, self.text, "gpt-3.5-turbo", max_tokens=256
+            system_message, self.text, "gpt-3.5-turbo-0613", max_tokens=256
         )
 
         self.processing_costs += cost
@@ -195,7 +195,7 @@ class SPSEssay(Essay):
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, self.text, "gpt-3.5-turbo", max_tokens=n_errors * 80
+            system_message, self.text, "gpt-3.5-turbo-0613", max_tokens=n_errors * 80
         )
 
         self.processing_costs += cost
@@ -209,7 +209,7 @@ class SPSEssay(Essay):
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, oai_prompt, "gpt-4", max_tokens=n_comments * 80
+            system_message, oai_prompt, "gpt-4-0613", max_tokens=n_comments * 80
         )
 
         self.processing_costs += cost
@@ -254,7 +254,7 @@ class PSEEssay(Essay):
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, oai_prompt, "gpt-3.5-turbo", max_tokens=400
+            system_message, oai_prompt, "gpt-3.5-turbo-0613", max_tokens=400
         )
         self.processing_costs += cost
         new_comment = Comment(completion, "General Comment:\n")
@@ -266,7 +266,7 @@ class PSEEssay(Essay):
 
         oai = AIService()
         completion, cost = await oai.generate_chat_completion(
-            system_message, self.text, "gpt-3.5-turbo", max_tokens=n_errors * 80
+            system_message, self.text, "gpt-3.5-turbo-0613", max_tokens=n_errors * 80
         )
 
         self.processing_costs += cost
@@ -282,7 +282,7 @@ class PSEEssay(Essay):
         completion, cost = await oai.generate_chat_completion(
             system_message,
             oai_prompt,
-            "gpt-4",
+            "gpt-4-0613",
             max_tokens=n_comments * 80,
             temperature=0.5,
         )
