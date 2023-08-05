@@ -189,17 +189,24 @@ class SPSEssay(Essay):
         self.general_comments.append(new_comment)
 
     async def generate_grammar_comments(self):
-        n_errors = len(self.text) // 225
-
         system_message = f'As an essay guidance counselor, your task is to help a student by identifying grammar mistakes in their writing. Your response should be formatted as a list with each line containing a specific error along with a brief excerpt from the student\'s essay that includes that error. Also provide a succinct suggestion for correcting the mistake.\n\nFor example:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
-        completion, cost = await OAI_SERVICE.generate_chat_completion(
-            system_message, self.text, "gpt-3.5-turbo-0613", max_tokens=n_errors * 80
-        )
+        paragraphs: list[str] = self.text.split("\n")
+        
+        async with asyncio.TaskGroup() as tg:
+            
+            tasks = []
+            for paragraph in paragraphs:
+                n_errors = max(len(paragraph) // 190, 1)
+                task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message, paragraph, "gpt-3.5-turbo-0613", max_tokens=n_errors * 80))
+                tasks.append(task)
+              
+            for coro in asyncio.as_completed(tasks):
+                completion, cost = await coro
+                self.processing_costs += cost
+                unparsed_comments = completion.split("\n")
+                self.add_unparsed_comments(unparsed_comments)
 
-        self.processing_costs += cost
-        unparsed_comments = completion.split("\n")
-        self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
         n_comments = len(self.text) // 225
@@ -270,21 +277,24 @@ class PSEEssay(Essay):
         self.add_unparsed_comments(unparsed_comments)
 
     async def generate_specific_comments(self):
-        n_comments = len(self.text) // 175
 
         system_message = f'As an essay counselor, your task is to assist a student in articulating their problem-solving process within a written essay. We\'re not focusing on the mathematical accuracy but instead the clarity and flow of the explanation, and the organization of the essay. You should provide recommendations for improving these aspects, without considering the correctness of mathematical logic.\nRespond with a newline-separated list of 5 distinct suggestions for the student, each tied to a specific quote from the text. Your suggestions should aim to enhance the coherence, organization, and clarity of the student\'s explanation\n\nFor example:\n"First, I calculated the sum" - Add more context. What exactly are you summing here and why is it important?\n"This result is impossible" - Suggest: Instead of stating it\'s impossible, explain why it contradicts known principles or assumptions.'
-        oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nStudent's Essay:\n{self.text}"
-        completion, cost = await OAI_SERVICE.generate_chat_completion(
-            system_message,
-            oai_prompt,
-            "gpt-4-0613",
-            max_tokens=n_comments * 80,
-            temperature=0.5,
-        )
 
-        self.processing_costs += cost
-        unparsed_comments = completion.split("\n")
-        self.add_unparsed_comments(unparsed_comments)
+        paragraphs: list[str] = self.text.split("\n")
+
+        async with asyncio.TaskGroup() as tg:
+            
+            tasks = []
+            for paragraph in paragraphs:
+                n_errors = max(len(paragraph) // 175, 1)
+                task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message, paragraph, "gpt-4-0613", max_tokens=n_errors * 80, temperature=0.5))
+                tasks.append(task)
+              
+            for coro in asyncio.as_completed(tasks):
+                completion, cost = await coro
+                self.processing_costs += cost
+                unparsed_comments = completion.split("\n")
+                self.add_unparsed_comments(unparsed_comments)
 
     def to_dict(self) -> dict:
         return {
