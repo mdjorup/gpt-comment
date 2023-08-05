@@ -1,14 +1,18 @@
+import asyncio
 import os
-import time
 
 import aiohttp
+from aiolimiter import AsyncLimiter
 
-from config import config, pricing
+from config import pricing
 
+DEFAULT_MAX_TOKENS = 256
+DEFAULT_TEMPERATURE = 0.7
 
 class AIService:
     def __init__(self):
         self.api_key = os.environ.get("OPENAI_API_KEY", "")
+        self.limiter = AsyncLimiter(3000, 60)
 
     def compute_cost(self, base_model, prompt_tokens, completion_tokens):
         prompt_price_per_1k = pricing[base_model]["prompt_tokens"]
@@ -18,14 +22,19 @@ class AIService:
             completion_price_per_1k * completion_tokens / 1000
         )
         return cost
+    
+    async def generate_chat_completion(self, system_message, prompt, model, **kwargs):
+        kwargs["max_tokens"] = kwargs.get("max_tokens", DEFAULT_MAX_TOKENS)
+        kwargs["temperature"] = kwargs.get("temperature", DEFAULT_TEMPERATURE)
+        await self.limiter.acquire()
+        return await self.__generate_chat_completion(system_message, prompt, model, **kwargs)
 
-    async def generate_chat_completion(
+    async def __generate_chat_completion(
         self,
         system_message: str,
         prompt: str,
         model: str,
-        max_tokens: int = 256,
-        temperature: float = 0.7,
+        **kwargs,
     ) -> tuple[str, float]:
         headers = {
             "Content-Type": "application/json",
@@ -38,8 +47,7 @@ class AIService:
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt},
             ],
-            "temperature": temperature,
-            "max_tokens": max_tokens,
+            **kwargs,
         }
 
         url = "https://api.openai.com/v1/chat/completions"
@@ -47,9 +55,9 @@ class AIService:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, json=data) as response:
                 if response.status == 429:
-                    time.sleep(10)
-                    return await self.generate_chat_completion(
-                        system_message, prompt, model, max_tokens, temperature
+                    await asyncio.sleep(2)
+                    return await self.__generate_chat_completion(
+                        system_message, prompt, model, **kwargs
                     )
 
                 response_data = await response.json()
