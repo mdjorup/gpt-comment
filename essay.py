@@ -179,7 +179,7 @@ class SPSEssay(Essay):
         system_message = f"As a guidance counselor assisting a student with their application essay for a prestigious tech-focused high school, your task is to provide constructive feedback for improvement. Consider the essay question, {self.prompt}, as the foundation for your feedback, ensuring that the recommendations align with the initial prompt. Respond with a compact, yet comprehensive paragraph containing your suggested enhancements."
 
         completion, cost = await OAI_SERVICE.generate_chat_completion(
-            system_message, self.text, "gpt-3.5-turbo-0613", max_tokens=256
+            system_message, self.text, "gpt-3.5-turbo", max_tokens=256
         )
 
         self.processing_costs += cost
@@ -196,7 +196,7 @@ class SPSEssay(Essay):
             tasks = []
             for paragraph in paragraphs:
                 n_errors = max(len(paragraph) // 190, 1)
-                task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message, paragraph, "gpt-3.5-turbo-0613", max_tokens=n_errors * 80))
+                task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message, paragraph, "gpt-3.5-turbo", max_tokens=n_errors * 80))
                 tasks.append(task)
               
             for coro in asyncio.as_completed(tasks):
@@ -212,7 +212,7 @@ class SPSEssay(Essay):
         system_message = f"You're an essay guidance counselor assisting a student with their TJ application essay. Your key responsibility is to offer constructive suggestions aimed at refining the content and ideas of the essay. Based on the student's essay, generate {n_comments} insightful suggestions, each connected to a specific quote from the text. Format your advice as a list, where each entry begins with a brief quote from the essay, followed by your suggestion for improvement.\nRemember, your goal is to help shape the student's thoughts and arguments, enhancing the overall quality of the essay.\n\n\"Samantha was very angry\" - Try to 'show' the emotions instead of just 'telling'. This will make your narrative more engaging.\n\"I also play tennis\" - Keep your information relevant. Discuss aspects of your background that align with the theme of the essay prompt."
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         completion, cost = await OAI_SERVICE.generate_chat_completion(
-            system_message, oai_prompt, "gpt-4-0613", max_tokens=n_comments * 80
+            system_message, oai_prompt, "gpt-4", max_tokens=n_comments * 80
         )
 
         self.processing_costs += cost
@@ -256,7 +256,7 @@ class PSEEssay(Essay):
         system_message = f"You're an essay counselor helping a student craft their application essay for TJ, a highly selective technology high school. Assume that your reader possesses a strong mathematical background. The core objective of the essay is to exhibit the student's problem-solving strategies in written form.\nBased on the essay provided, offer your feedback in a succinct paragraph. Your recommendations should aim at enhancing the clarity, specificity, and effectiveness of how the student communicates their problem-solving strategies within the context of the essay."
         oai_prompt = f"Essay Prompt:\n{self.prompt}\n\nApplicant's Essay:\n{self.text}"
         completion, cost = await OAI_SERVICE.generate_chat_completion(
-            system_message, oai_prompt, "gpt-3.5-turbo-0613", max_tokens=400
+            system_message, oai_prompt, "gpt-3.5-turbo", max_tokens=400
         )
         self.processing_costs += cost
         new_comment = Comment(completion, "General Comment:\n")
@@ -267,7 +267,7 @@ class PSEEssay(Essay):
         system_message = f'As an essay guidance counselor, your task is to help a student by identifying grammar mistakes in their writing. Your response should be formatted as a list with each line containing a specific error along with a brief excerpt from the student\'s essay that includes that error. Also provide a succinct suggestion for correcting the mistake.\n\nFor example:\n"want to be a engineer" - Change "a" to "an"\n"I is playing" - incorrect use of "is". Change to "am"'
 
         completion, cost = await OAI_SERVICE.generate_chat_completion(
-            system_message, self.text, "gpt-3.5-turbo-0613", max_tokens=n_errors * 80
+            system_message, self.text, "gpt-3.5-turbo", max_tokens=n_errors * 80
         )
 
         self.processing_costs += cost
@@ -285,7 +285,7 @@ class PSEEssay(Essay):
             tasks = []
             for paragraph in paragraphs:
                 n_errors = max(len(paragraph) // 175, 1)
-                task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message, paragraph, "gpt-4-0613", max_tokens=n_errors * 80, temperature=0.5))
+                task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message, paragraph, "gpt-4", max_tokens=n_errors * 80, temperature=0.5))
                 tasks.append(task)
               
             for coro in asyncio.as_completed(tasks):
