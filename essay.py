@@ -10,8 +10,6 @@ from services.ai_service import AIService
 from services.firestore_service import FirestoreService
 from utils import longest_common_substring
 
-gpt_model: str = config["gpt_model_id"]
-
 OAI_SERVICE = AIService()
 
 
