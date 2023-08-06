@@ -32,4 +32,12 @@ pricing = {
         "prompt_tokens": 0.03,
         "completion_tokens": 0.06,
     },
+    "gpt-3.5-turbo-0613": {
+        "prompt_tokens": 0.0015,
+        "completion_tokens": 0.002,
+    },
+    "gpt-4-0613": {
+        "prompt_tokens": 0.03,
+        "completion_tokens": 0.06,
+    },
 }
