@@ -50,7 +50,12 @@ class StudentEntry:
         self.middle_school = middle_school
 
     def __str__(self):
-        return f"StudentEntry(row_index={self.row_index}, student_email={self.student_email}, n_sps_essays={len(self.sps_essays)}, n_pse_essays={len(self.pse_essays)})"
+        return (
+            f"StudentEntry(row_index={self.row_index}, "
+            f"student_email={self.student_email}, "
+            f"n_sps_essays={len(self.sps_essays)}, "
+            f"n_pse_essays={len(self.pse_essays)})"
+            )
 
     def update_completed(self, document_link: str):
         ss = SheetsService()
@@ -62,7 +67,7 @@ class StudentEntry:
     async def process(self):
         print("Processing Submission for " + self.student_email)
 
-        ### PART 2: PROCESS STUDENT ENTRIES - everything to do with analyzing the essays
+        # PART 2: PROCESS STUDENT ENTRIES - everything to do with analyzing the essays
         t0 = time.time()
         async with asyncio.TaskGroup() as tg:
             sps_essays_bar = tqdm(self.sps_essays, desc="SPS Essays")
@@ -77,7 +82,7 @@ class StudentEntry:
                 time.sleep(2)
         t1 = time.time()
 
-        ### PART 3: GENERATE REPORTS - create word doc, write entries
+        # PART 3: GENERATE REPORTS - create word doc, write entries
 
         total_cost = 0
         document = Document()
@@ -161,7 +166,7 @@ class StudentEntry:
         # This code saves the word document locally
         # document.save(document_name)
 
-        ### PART 4: UPDATE SHEET & UPLOAD
+        # PART 4: UPDATE SHEET & UPLOAD
 
         ds = DriveService()
 

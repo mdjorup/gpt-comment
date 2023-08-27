@@ -1,0 +1,13 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .vscode,
+    .pytest_cache,
+    .mypy_cache,
+    .mypy_cache,
+    .pytest_cache,
+    .pytest_cach
+max-line-length = 120
+max-complexity = 10
