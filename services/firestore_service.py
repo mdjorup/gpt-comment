@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Union
+from typing import List
 
 import firebase_admin
 from firebase_admin import credentials, firestore

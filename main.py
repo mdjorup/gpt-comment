@@ -1,5 +1,3 @@
-### THIS IS A COMMENT
-
 import asyncio
 import sys
 
@@ -10,7 +8,7 @@ from utils import float_to_dollar
 
 
 async def main():
-    ### PART 1: GET DATA FROM SHEET
+    # PART 1: GET DATA FROM SHEET
     limit: int = config["limit"]
     completed_column: str = config["spreadsheet"]["completed_column"]
     student_email_column: str = config["spreadsheet"]["student_email_column"]
@@ -42,7 +40,7 @@ async def main():
 
         student_email = row[student_email_index]
 
-        if row[complted_index] != "TRUE" and student_email != None:
+        if row[complted_index] != "TRUE" and student_email is not None:
             gpa_str = str(row[reported_gpa_index])
             entry = StudentEntry(
                 dict(row),

@@ -25,7 +25,7 @@ def longest_common_substring(s1, s2):
 
     while m > 0:
         for i in range(len(short_str) - m + 1):
-            substring = short_str[i : i + m]
+            substring = short_str[i: i + m]
             if substring in long_str:
                 longest_substring = substring
                 return longest_substring

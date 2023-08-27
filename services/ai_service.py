@@ -9,6 +9,7 @@ from config import pricing
 DEFAULT_MAX_TOKENS = 256
 DEFAULT_TEMPERATURE = 0.7
 
+
 class AIService:
     def __init__(self):
         self.api_key = os.environ.get("OPENAI_API_KEY", "")
@@ -22,7 +23,7 @@ class AIService:
             completion_price_per_1k * completion_tokens / 1000
         )
         return cost
-    
+
     async def generate_chat_completion(self, system_message, prompt, model, **kwargs):
         kwargs["max_tokens"] = kwargs.get("max_tokens", DEFAULT_MAX_TOKENS)
         kwargs["temperature"] = kwargs.get("temperature", DEFAULT_TEMPERATURE)
