@@ -286,7 +286,9 @@ class PSEEssay(Essay):
 
             tasks = []
             for paragraph in paragraphs:
-                n_errors = max(len(paragraph) // 175, 1)
+                n_errors = 1 if len(paragraph) > 300 else 0
+                if n_errors == 0:
+                    continue
                 task = tg.create_task(OAI_SERVICE.generate_chat_completion(system_message,
                                                                            paragraph,
                                                                            "gpt-4",
